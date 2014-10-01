@@ -42,3 +42,5 @@ A string representation of the Namelist instance that can be used by `eval()` to
 ```
 print repr(nml)
 ```
+
+**Note**: The parsing of namelist does not have to strictly follow the Fortran standard. Hence, some namelists that are perfectly accepted by some Fortran version are not guaranteed to be correctly parsed by `parse_namelist()`. Always check the content of your Namelist object.
