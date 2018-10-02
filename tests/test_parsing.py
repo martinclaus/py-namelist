@@ -43,3 +43,17 @@ def test_match_multiple_name_val(string):
     assert nml.name == "nml3"
     assert nml["val1"] == 34
     assert nml["val2"] == 35
+
+
+@pytest.mark.parametrize(
+    "string,res",
+    [("&nml3 &end", ["&nml3", "&end"]),
+     ("&n val1=34,\nval2=35/",
+      ['&n', 'val1', '=', '34', 'val2', '=', '35/']),
+     ("&n val1=34,\nval2=35 /",
+      ['&n', 'val1', '=', '34', 'val2', '=', '35', '/']),
+     ]
+)
+def test_tokenize(string, res):
+    nml = namelist.namelist._tokenize(string)
+    assert nml == res
