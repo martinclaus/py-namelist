@@ -104,13 +104,17 @@ class Namelist(DictClass):
         return name == self.name
 
 def parse_namelist_file(in_file):
+    namelist_string = in_file.read()
+    in_file.seek(0, 0)
+    return parse_namelist_string(namelist_string)
+
+def parse_namelist_string(in_string):
     """ parse_namelist_file(fobj) -> list of Namelist instances. fobj can be
     any object that implements pythons file object API, i.e. that offers a
     read() method.
     """
     retlist = []
-    content = _tokenize(in_file.read())
-    in_file.seek(0, 0)
+    content = _tokenize(in_string)
     for item in content:
         match = re.match(namelistname, item)
         if match:
@@ -151,10 +155,11 @@ def parse_namelist_file(in_file):
         if match:
             nml[pname].append(eval(item))
     for nml in retlist:
-        for k, v in nml.iteritems():
+        for k, v in nml.items():
             if len(v) == 1:
                 nml[k] = v[0]
     return retlist
+
 
 def _tokenize(text):
     fs = "$FS$"
