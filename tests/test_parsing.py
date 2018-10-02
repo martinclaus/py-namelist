@@ -9,6 +9,7 @@ from context import namelist
     "string",
     ["&nml &end",
      "&nml\n&end",
+     "&nml\n&end\n",
      "&nml &",
      "&nml /", "&nml/",
      ]

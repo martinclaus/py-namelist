@@ -22,8 +22,8 @@ valueBool = re.compile(r"(\.(true|false|t|f)\.)",re.I)
 quote = re.compile(r"([\'\"]{1}.*[\'\"]{1})")
 namelistname = re.compile(r"&(" + varname + r")")
 paramname = re.compile(r"^(" + varname + r")")
-namlistend = re.compile(r"^\$(end)?", re.I)
-comment = re.compile(r"#.*")
+namlistend = re.compile(r'^(&(end)?|/)$', re.I)
+comment = re.compile(r"[#!].*")
 equalsign = re.compile(r"^=$")
 computation = re.compile(r"^([0-9\.e]+\s*[\*\+\-/]{1}\s*)+[0-9\.e]+", re.I)
 
@@ -127,10 +127,11 @@ def parse_namelist_string(in_string):
             pname = match.group(1)
             nml[pname] = []
             continue
-        for pattern in (namlistend, equalsign):
-            match = re.match(pattern, item)
-            if match:
-                continue
+        if re.match(namlistend, item):
+            continue
+        print(item)
+        if re.match(equalsign, item):
+            continue
         match = re.match(valueBool, item)
         if match:
             nml[pname].append(match.group(1)[1].lower()=="t")
