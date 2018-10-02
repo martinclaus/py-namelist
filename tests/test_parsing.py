@@ -6,6 +6,20 @@ from context import namelist
 
 
 @pytest.mark.parametrize(
+    "string,res",
+    [("&nml3 &end", ["&nml3", "&end"]),
+     ("&n val1=34,\nval2=35/",
+      ['&n', 'val1', '=', '34', 'val2', '=', '35/']),
+     ("&n val1=34,\nval2=35 /",
+      ['&n', 'val1', '=', '34', 'val2', '=', '35', '/']),
+     ]
+)
+def test_tokenize(string, res):
+    nml = namelist.namelist._tokenize(string)
+    assert nml == res
+
+
+@pytest.mark.parametrize(
     "string",
     ["&nml &end",
      "&nml\n&end",
@@ -46,14 +60,17 @@ def test_match_multiple_name_val(string):
 
 
 @pytest.mark.parametrize(
-    "string,res",
-    [("&nml3 &end", ["&nml3", "&end"]),
-     ("&n val1=34,\nval2=35/",
-      ['&n', 'val1', '=', '34', 'val2', '=', '35/']),
-     ("&n val1=34,\nval2=35 /",
-      ['&n', 'val1', '=', '34', 'val2', '=', '35', '/']),
+    "string,val",
+    [("&nml val=.T./", True),
+     ("&nml val=.t./", True),
+     ("&nml val=.TRUE./", True),
+     ("&nml val=.true./", True),
+     ("&nml val=.F./", False),
+     ("&nml val=.f./", False),
+     ("&nml val=.FALSE./", False),
+     ("&nml val=.false./", False),
      ]
 )
-def test_tokenize(string, res):
-    nml = namelist.namelist._tokenize(string)
-    assert nml == res
+def test_var_bool(string, val):
+    nml = namelist.parse_namelist_string(string)[0]
+    assert nml["val"] is val
