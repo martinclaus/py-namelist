@@ -23,7 +23,7 @@ quote = re.compile(r"([\'\"]{1}.*[\'\"]{1})")
 namelistname = re.compile(r"&(" + varname + r")")
 paramname = re.compile(r"^(" + varname + r")")
 namlistend = re.compile(r'^(&(end)?|/)$', re.I)
-comment = re.compile(r"[#!].*")
+comment = re.compile(r"!.*")
 equalsign = re.compile(r"^=$")
 computation = re.compile(r"^([0-9\.e]+\s*[\*\+\-/]{1}\s*)+[0-9\.e]+", re.I)
 

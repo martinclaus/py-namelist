@@ -12,6 +12,8 @@ from context import namelist
       ['&n', 'val1', '=', '34', 'val2', '=', '35/']),
      ("&n val1=34,\nval2=35 /",
       ['&n', 'val1', '=', '34', 'val2', '=', '35', '/']),
+     ("&n val1=34,!this is a comment\nval2=35 /",
+      ['&n', 'val1', '=', '34', 'val2', '=', '35', '/']),
      ]
 )
 def test_tokenize(string, res):
