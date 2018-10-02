@@ -37,7 +37,7 @@ class Namelist(DictClass):
     A fortran readable string representation of the namelist can be generated
     via str() build-in function. A string representation of the Python object
     that can be used with eval or string.Template substitution can be obtained
-    by repr() build-in function. 
+    by repr() build-in function.
     """
     @property
     def name(self):
@@ -45,7 +45,7 @@ class Namelist(DictClass):
         identifier.
         """
         return self._name
-    
+
     def __init__(self, name, init_val=()):
         """x.__init__(...) initializes x; see help(type(x)) for signature"""
         self._name = name
@@ -98,7 +98,7 @@ class Namelist(DictClass):
             retstr += "%s, " % repr((k, v))
         retstr += "))"
         return retstr
-    
+
     def has_name(self, name):
         """x.hasname(self, name) <==> name==x.name"""
         return name == self.name
@@ -123,7 +123,7 @@ def parse_namelist_file(in_file):
             pname = match.group(1)
             nml[pname] = []
             continue
-        for pattern in (namlistend, equalsign):        
+        for pattern in (namlistend, equalsign):
             match = re.match(pattern, item)
             if match:
                 continue
@@ -158,8 +158,8 @@ def parse_namelist_file(in_file):
 
 def _tokenize(text):
     fs = "$FS$"
-    text = re.sub(comment, '', text)        
-    for char, rep in zip((r'\n', r',', ' ', '=', ), (fs, fs, fs, fs+'='+fs)):
+    text = re.sub(comment, '', text)
+    for char, rep in zip(('\n', r',', ' ', '=', ), (fs, fs, fs, fs+'='+fs)):
         text = text.replace(char, rep)
     text = text.split(fs)
     return [token.strip() for token in text if token.strip() != '']
