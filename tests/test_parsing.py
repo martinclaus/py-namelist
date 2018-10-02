@@ -76,3 +76,17 @@ def test_match_multiple_name_val(string):
 def test_var_bool(string, val):
     nml = namelist.parse_namelist_string(string)[0]
     assert nml["val"] is val
+
+
+@pytest.mark.parametrize(
+    "string,val",
+    [("&nml val='this is a string'/", "this is a string"),
+     ("&nml val='this is \na string'/", "this is \na string"),
+     ("&nml val=\"this is \na string\"/", "this is \na string"),
+     ("&nml val=\"this 'is' \na string\"/", "this 'is' \na string"),
+     ("&nml val='this \"is\" \na string'/", "this \"is\" \na string"),
+     ]
+)
+def test_var_string(string, val):
+    nml = namelist.parse_namelist_string(string)[0]
+    assert nml["val"] == val

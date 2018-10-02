@@ -19,7 +19,7 @@ NML_LINE_LENGTH = 70
 # Config file parser, called from the class initialization
 varname   = r'[a-zA-Z][a-zA-Z0-9_]*'
 valueBool = re.compile(r"(\.(true|false|t|f)\.)",re.I)
-quote = re.compile(r"([\'\"]{1}.*[\'\"]{1})")
+quote = re.compile(r"([\']{1}[^\']*[\']{1}|[\"]{1}[^\"]*[\"]{1})", re.MULTILINE)
 namelistname = re.compile(r"&(" + varname + r")")
 paramname = re.compile(r"^(" + varname + r")")
 namlistend = re.compile(r'^(&(end)?|/)$', re.I)
@@ -129,7 +129,6 @@ def parse_namelist_string(in_string):
             continue
         if re.match(namlistend, item):
             continue
-        print(item)
         if re.match(equalsign, item):
             continue
         match = re.match(valueBool, item)
@@ -164,8 +163,22 @@ def parse_namelist_string(in_string):
 
 def _tokenize(text):
     fs = "$FS$"
+
+    # remove comments
     text = re.sub(comment, '', text)
+
+    # replace quoted strings by hash
+    hashed_tokens = {}
+    while True:
+        match = re.search(quote, text)
+        if not match:
+            break
+        hashed = str(hash(match.group(0)))
+        hashed_tokens[hashed] = match.group(0)
+        text = re.sub(match.group(0), fs+hashed+fs, text, 1)
+
     for char, rep in zip(('\n', r',', ' ', '=', ), (fs, fs, fs, fs+'='+fs)):
         text = text.replace(char, rep)
     text = text.split(fs)
-    return [token.strip() for token in text if token.strip() != '']
+    tokens = [token.strip() for token in text if token.strip() != '']
+    return [hashed_tokens[t] if t in hashed_tokens else t for t in tokens]
