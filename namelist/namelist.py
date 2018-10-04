@@ -87,7 +87,7 @@ class Namelist(DictClass):
                 else:
                     rv = repr(v)
                 retstr += "%s = %s\n" % (str(k), rv)
-        retstr += "&end\n"
+        retstr += "/\n"
         return retstr
 
     def __repr__(self):
