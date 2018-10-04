@@ -2,3 +2,5 @@ __pycache__
 build
 dist
 namelist.egg-info
+*.pyc
+.coverage

@@ -5,7 +5,7 @@ Parse Fortran Namelists to dict-like objects and back
 ## Download
 To get the latest git version do
 ```
-$ git clone https://github.com/martinclaus/py-namelist.git
+$ git clone https://git.geomar.de:martin-claus/py-namelist.git
 ```
 
 ## Usage
