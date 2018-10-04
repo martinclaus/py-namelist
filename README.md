@@ -1,3 +1,6 @@
+[![pipeline status](https://git.geomar.de/martin-claus/py-namelist/badges/develop/pipeline.svg)](https://git.geomar.de/martin-claus/py-namelist/commits/develop)
+[![coverage report](https://git.geomar.de/martin-claus/py-namelist/badges/develop/coverage.svg)](https://git.geomar.de/martin-claus/py-namelist/commits/develop)
+
 py-namelist
 ===========
 Parse Fortran Namelists to dict-like objects and back
