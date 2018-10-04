@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="namelist",
-    version="0.0.1",
+    version="0.1.0",
     author="Martin Claus",
     author_email="mclaus@geomar.de",
     description="Parsing Fortran namelists to Python dictionaries and back.",
