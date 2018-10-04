@@ -77,7 +77,7 @@ class Namelist(DictClass):
                             tmpstr = tmpstr[:-1]
                         retstr += tmpstr + " &\n"
                         tmpstr = ""
-                retstr = retstr + tmpstr[:-1] + "/)\n"
+                retstr = retstr + tmpstr[:-1] + " /)\n"
             else:
                 if isinstance(v, bool):
                     if v:
@@ -212,7 +212,8 @@ def _tokenize(text):
         hashed_tokens[hashed] = match.group(0)
         text = re.sub(match.group(0), fs+hashed+fs, text, 1)
 
-    for char, rep in zip(('\n', r',', ' ', '=', ), (fs, fs, fs, fs+'='+fs)):
+    for char, rep in zip(('\n', r',', ' ', '=', '(/', '/)'),
+                         (fs, fs, fs, fs+'='+fs, fs, fs)):
         text = text.replace(char, rep)
     text = text.split(fs)
     tokens = [token.strip() for token in text if token.strip() != '']
