@@ -1,0 +1,11 @@
+image: continuumio/miniconda3:latest
+
+before_script:
+  - env
+  - source activate root
+  - conda install pytest pytest-cov
+
+test:
+  stage: test
+  script:
+    - pytest -v --cov --cov-report term-missing .
