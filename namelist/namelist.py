@@ -4,22 +4,20 @@ Created on Tue Sep 23 10:27:57 2014
 
 @author: mclaus
 """
-import sys
 import re
 
-if sys.version_info[:2] < (2, 7):
-    DictClass = dict
-else:
-    # If Python 2.7 or higher use OrderedDict to preserve
-    # the order of the Namelist
+try:
     from collections import OrderedDict as DictClass
+except ImportError:  # Python < 2.7
+    DictClass = dict
 
 MODULE_NAME = "namelist"
 NML_LINE_LENGTH = 70
 # Config file parser, called from the class initialization
-varname   = r'[a-zA-Z][a-zA-Z0-9_]*'
-valueBool = re.compile(r"(\.(true|false|t|f)\.)",re.I)
-quote = re.compile(r"([\']{1}[^\']*[\']{1}|[\"]{1}[^\"]*[\"]{1})", re.MULTILINE)
+varname = r'[a-zA-Z][a-zA-Z0-9_]*'
+valueBool = re.compile(r"(\.(true|false|t|f)\.)", re.I)
+quote = re.compile(r"([\']{1}[^\']*[\']{1}|[\"]{1}[^\"]*[\"]{1})",
+                   re.MULTILINE)
 namelistname = re.compile(r"&(" + varname + r")")
 paramname = re.compile(r"^(" + varname + r")")
 namlistend = re.compile(r'^(&(end)?|/)$', re.I)
@@ -29,31 +27,35 @@ computation = re.compile(r"^([0-9\.e]+\s*[\*\+\-/]{1}\s*)+[0-9\.e]+", re.I)
 
 
 class Namelist(DictClass):
-    """ Class to handle Fortran Namelists
-    Namelist(string) -> new namelist with fortran nml identifier string
-    Namelist(string, init_val) -> new initialized namelist with nml identifier
-        string and init_val beeing a valid initialisation object for the parent
+    """Class to handle Fortran Namelists.
+
+    Namelist(string) -> new namelist with fortran namelist group name
+    Namelist(string, init_val) -> new initialized namelist with namelist group
+        name and init_val beeing a valid initialisation object for the parent
         class (either OrderedDict for Python >= 2.7 or else dict).
     A fortran readable string representation of the namelist can be generated
     via str() build-in function. A string representation of the Python object
-    that can be used with eval or string.Template substitution can be obtained
+    that can be used with eval or string. Template substitution can be obtained
     by repr() build-in function.
     """
+
     @property
     def name(self):
-        """ Read only property name, representing the fortran namelist
-        identifier.
-        """
+        """Namelist group name."""
         return self._name
 
     def __init__(self, name, init_val=()):
-        """x.__init__(...) initializes x; see help(type(x)) for signature"""
+        """Create a `Namelist` instance.
+
+        See help(type(x)) for signature.
+        """
         self._name = name
         super(self.__class__, self).__init__(init_val)
 
     def __str__(self):
-        """x.__str__(self) -> Fortran readable string representation of the
-        namelist. If a value v is a sequence, an 1D fortran array representation
+        """Fortran readable string representation of the namelist.
+
+        If a value v is a sequence, an 1D fortran array representation
         is created using iter(v).
         """
         retstr = "&%s\n" % str(self.name)
@@ -89,29 +91,61 @@ class Namelist(DictClass):
         return retstr
 
     def __repr__(self):
-        """x.__repr__(self) -> string that can be used by eval to create a copy
-        of x.
-        """
+        """Return a string that can be used by eval to create a copy."""
         retstr = "%s.%s(%s, (" % (MODULE_NAME, self.__class__.__name__,
-                                 repr(self.name))
+                                  repr(self.name))
         for k, v in self.items():
             retstr += "%s, " % repr((k, v))
         retstr += "))"
         return retstr
 
     def has_name(self, name):
-        """x.hasname(self, name) <==> name==x.name"""
+        """Return `True` if `name` matches the namelist group name.
+
+        Parameters
+        ----------
+        name : str
+            name to test against.
+
+        Returns
+        -------
+        bool : `True` if `name` matches the namelist group name.
+
+        """
         return name == self.name
 
+
 def parse_namelist_file(in_file):
+    """Parse namelists from file object.
+
+    Parameters
+    ----------
+    in_file : :obj:
+        Any object that implements pythons file object API, i.e. that offers a
+        `read` and `seek` method.
+
+    Returns
+    -------
+    :obj:`List` of :obj:`Namelist`
+
+    """
     namelist_string = in_file.read()
     in_file.seek(0, 0)
     return parse_namelist_string(namelist_string)
 
+
 def parse_namelist_string(in_string):
-    """ parse_namelist_file(fobj) -> list of Namelist instances. fobj can be
-    any object that implements pythons file object API, i.e. that offers a
-    read() method.
+    """Parse namelists from string.
+
+    Parameters
+    ----------
+    in_string : str
+        String containing one or more namelist definitions.
+
+    Returns
+    -------
+    :obj:`List` of :obj:`Namelist`
+
     """
     retlist = []
     content = _tokenize(in_string)
@@ -133,7 +167,7 @@ def parse_namelist_string(in_string):
             continue
         match = re.match(valueBool, item)
         if match:
-            nml[pname].append(match.group(1)[1].lower()=="t")
+            nml[pname].append(match.group(1)[1].lower() == "t")
             continue
         match = re.match(quote, item)
         if match:
@@ -162,6 +196,7 @@ def parse_namelist_string(in_string):
 
 
 def _tokenize(text):
+    """Extract syntax tokens."""
     fs = "$FS$"
 
     # remove comments
