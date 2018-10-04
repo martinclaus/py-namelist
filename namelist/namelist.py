@@ -8,7 +8,7 @@ import re
 
 try:
     from collections import OrderedDict as DictClass
-except ImportError:  # Python < 2.7
+except ImportError:  # pragma: no cover # Python < 2.7
     DictClass = dict
 
 MODULE_NAME = "namelist"
@@ -23,7 +23,9 @@ paramname = re.compile(r"^(" + varname + r")")
 namlistend = re.compile(r'^(&(end)?|/)$', re.I)
 comment = re.compile(r"!.*$", re.MULTILINE)
 equalsign = re.compile(r"^=$")
-computation = re.compile(r"^([0-9\.e]+\s*[\*\+\-/]{1}\s*)+[0-9\.e]+", re.I)
+computation = re.compile(
+    r"([\(]*[0-9\.e]+[\)\s]*([\*\+\-/]{1}|[\*]{2})\s*)+[0-9\.e]+[\)]*", re.I
+)
 
 
 class Namelist(DictClass):
@@ -178,13 +180,13 @@ def parse_namelist_string(in_string):
         except ValueError:
             pass
         else:
-            continue
+            continue  # pragma: no cover
         try:
             nml[pname].append(float(item))
         except ValueError:
             pass
         else:
-            continue
+            continue  # pragma: no cover
         match = re.match(computation, item)
         if match:
             nml[pname].append(eval(item))
@@ -197,20 +199,18 @@ def parse_namelist_string(in_string):
 
 def _tokenize(text):
     """Extract syntax tokens."""
-    fs = "$FS$"
+    fs = "$$$FS$$$"
 
     # remove comments
     text = re.sub(comment, '', text)
 
-    # replace quoted strings by hash
     hashed_tokens = {}
-    while True:
-        match = re.search(quote, text)
-        if not match:
-            break
-        hashed = str(hash(match.group(0)))
-        hashed_tokens[hashed] = match.group(0)
-        text = re.sub(match.group(0), fs+hashed+fs, text, 1)
+
+    # replace quoted strings by hash
+    text = _hash_token(text, quote, hashed_tokens, fs)
+
+    # replace numerical computations by hash
+    text = _hash_token(text, computation, hashed_tokens, fs)
 
     for char, rep in zip(('\n', r',', ' ', '=', '(/', '/)'),
                          (fs, fs, fs, fs+'='+fs, fs, fs)):
@@ -218,3 +218,15 @@ def _tokenize(text):
     text = text.split(fs)
     tokens = [token.strip() for token in text if token.strip() != '']
     return [hashed_tokens[t] if t in hashed_tokens else t for t in tokens]
+
+
+def _hash_token(text, pattern, hashed_tokens, fs):
+    while True:
+        match = re.search(pattern, text)
+        if not match:
+            break
+        matched_str = match.group(0)
+        hashed = str(hash(matched_str))
+        hashed_tokens[hashed] = matched_str
+        text = text.replace(matched_str, fs+hashed+fs, 1)
+    return text
