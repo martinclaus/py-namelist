@@ -37,6 +37,19 @@ def test_parse_string(string):
 
 @pytest.mark.parametrize(
     "string",
+    ["&nml\n/\n",
+     "&nml\nval1 = 3\n/\n",
+     "&nml\nval1 = .TRUE.\n/\n",
+     # "&nml\n,val1 = (/1,2,3,4,5,6/)\n/\n",
+     ]
+)
+def test_string_out(string):
+    nml = namelist.parse_namelist_string(string)[0]
+    assert str(nml) == string
+
+
+@pytest.mark.parametrize(
+    "string",
     ["&nml2 val=34 &end",
      "&nml2\n val=34 \n&end",
      ]
